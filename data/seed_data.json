@@ -1,0 +1,146 @@
+[
+	{
+		"category": "Word",
+		"title": "Petrichor",
+		"subtitle": "The smell after rain",
+		"content": "Petrichor is the earthy scent produced when rain falls on dry soil, especially after a period of warm, dry weather.",
+		"description": "The word was coined by Australian researchers in 1964 from Greek roots related to stone and the fluid believed to flow through the veins of the gods.",
+		"source_name": "Merriam-Webster",
+		"source_url": "https://www.merriam-webster.com/dictionary/petrichor"
+	},
+	{
+		"category": "Word",
+		"title": "Susurrus",
+		"subtitle": "A soft murmuring sound",
+		"content": "Susurrus means a whispering, murmuring, or rustling sound, such as leaves moving in a breeze.",
+		"description": "The English word comes from Latin susurrus, meaning a whisper or murmur.",
+		"source_name": "Merriam-Webster",
+		"source_url": "https://www.merriam-webster.com/dictionary/susurrus"
+	},
+	{
+		"category": "Fact",
+		"title": "Three hearts",
+		"subtitle": "A remarkable octopus adaptation",
+		"content": "An octopus has three hearts: two pump blood to the gills, while the third pumps blood to the rest of the body.",
+		"description": "The heart that supplies the body stops beating while the octopus swims, which helps explain why many octopuses prefer crawling.",
+		"source_name": "Smithsonian Ocean",
+		"source_url": "https://ocean.si.edu/ocean-life/invertebrates/octopuses"
+	},
+	{
+		"category": "Fact",
+		"title": "Honey does not spoil",
+		"subtitle": "A remarkably stable food",
+		"content": "Properly stored honey can remain edible for a very long time because its low water content and acidity make it difficult for many microbes to grow.",
+		"description": "Crystallized honey has not necessarily spoiled; gentle warming can return it to a liquid state.",
+		"source_name": "National Honey Board",
+		"source_url": "https://honey.com/knowledge-center/what-is-honey"
+	},
+	{
+		"category": "Country",
+		"title": "New Zealand",
+		"subtitle": "Aotearoa in the southwestern Pacific",
+		"content": "New Zealand is an island country in the southwestern Pacific Ocean. Its capital city is Wellington, while Auckland is its largest urban area.",
+		"description": "The country consists primarily of the North Island and South Island, along with many smaller islands.",
+		"source_name": "Encyclopaedia Britannica",
+		"source_url": "https://www.britannica.com/place/New-Zealand"
+	},
+	{
+		"category": "Country",
+		"title": "Iceland",
+		"subtitle": "An island shaped by fire and ice",
+		"content": "Iceland is an island country in the North Atlantic known for volcanoes, glaciers, geothermal areas, and a capital city called Reykjavik.",
+		"description": "Its location on the Mid-Atlantic Ridge helps explain its active geology and abundant geothermal energy.",
+		"source_name": "Encyclopaedia Britannica",
+		"source_url": "https://www.britannica.com/place/Iceland"
+	},
+	{
+		"category": "Animal",
+		"title": "Axolotl",
+		"subtitle": "A salamander that keeps its juvenile form",
+		"content": "The axolotl is a salamander that normally retains larval features, including external gills, throughout its life in water.",
+		"description": "Axolotls are native to the lake complex around Mexico City and are well known for their ability to regenerate some body tissues.",
+		"source_name": "Smithsonian's National Zoo",
+		"source_url": "https://nationalzoo.si.edu/animals/axolotl"
+	},
+	{
+		"category": "Animal",
+		"title": "Tardigrade",
+		"subtitle": "The water bear",
+		"content": "Tardigrades are microscopic animals that can enter a dehydrated state called a tun, allowing some species to survive harsh conditions.",
+		"description": "Their resilience does not make them indestructible, but their ability to pause much of their metabolism is extraordinary.",
+		"source_name": "NASA",
+		"source_url": "https://www.nasa.gov/solar-system/tardigrades-in-space/"
+	},
+	{
+		"category": "Science",
+		"title": "Why the sky looks blue",
+		"subtitle": "Light scattered through air",
+		"content": "The daytime sky looks blue because molecules in Earth's atmosphere scatter shorter blue wavelengths of sunlight more strongly than longer red wavelengths.",
+		"description": "At sunrise and sunset, sunlight travels through more atmosphere, so scattered light can make the sky appear orange or red.",
+		"source_name": "NASA Space Place",
+		"source_url": "https://spaceplace.nasa.gov/blue-sky/en/"
+	},
+	{
+		"category": "Science",
+		"title": "The water cycle",
+		"subtitle": "Earth's continuous movement of water",
+		"content": "Water moves continuously through evaporation, condensation, precipitation, infiltration, runoff, and collection in Earth's water cycle.",
+		"description": "The cycle is powered mainly by solar energy and gravity and links oceans, atmosphere, land, and living systems.",
+		"source_name": "United States Geological Survey",
+		"source_url": "https://www.usgs.gov/special-topics/water-science-school/science/water-cycle"
+	},
+	{
+		"category": "Space",
+		"title": "Sagittarius A*",
+		"subtitle": "The black hole at the Milky Way's center",
+		"content": "Sagittarius A* is the supermassive black hole at the center of the Milky Way galaxy, about 26,000 light-years from Earth.",
+		"description": "Astronomers study the motion of nearby stars and other observations to understand this compact object.",
+		"source_name": "European Southern Observatory",
+		"source_url": "https://www.eso.org/public/usa/news/eso2212/"
+	},
+	{
+		"category": "Space",
+		"title": "The Pillars of Creation",
+		"subtitle": "A star-forming region in the Eagle Nebula",
+		"content": "The Pillars of Creation are towering columns of gas and dust in the Eagle Nebula where new stars form and ultraviolet light shapes the surrounding material.",
+		"description": "The region is roughly 6,500 light-years away and became widely known through images from the Hubble Space Telescope.",
+		"source_name": "NASA",
+		"source_url": "https://science.nasa.gov/missions/webb/nasas-webb-takes-star-filled-image-of-pillars-of-creation/"
+	},
+	{
+		"category": "History",
+		"title": "The first Moon landing",
+		"subtitle": "Apollo 11 reached the lunar surface in 1969",
+		"content": "On July 20, 1969, NASA's Apollo 11 lunar module landed on the Moon, and Neil Armstrong and Buzz Aldrin later walked on its surface.",
+		"description": "Michael Collins remained in lunar orbit in the command module while the landing crew worked on the surface.",
+		"source_name": "NASA",
+		"source_url": "https://www.nasa.gov/mission/apollo-11/"
+	},
+	{
+		"category": "History",
+		"title": "The Rosetta Stone",
+		"subtitle": "A key to reading Egyptian hieroglyphs",
+		"content": "The Rosetta Stone carries the same decree in hieroglyphic, Demotic, and ancient Greek scripts, helping scholars decipher Egyptian hieroglyphs.",
+		"description": "The stone was discovered in 1799 during Napoleon's campaign in Egypt and is now held by the British Museum.",
+		"source_name": "The British Museum",
+		"source_url": "https://www.britishmuseum.org/collection/object/Y_EA24"
+	},
+	{
+		"category": "Place",
+		"title": "Machu Picchu",
+		"subtitle": "An Inca site in the Andes",
+		"content": "Machu Picchu is a fifteenth-century Inca citadel located high in the Andes of Peru, above the Urubamba Valley.",
+		"description": "Its terraces, plazas, and stone structures form part of a UNESCO World Heritage site.",
+		"source_name": "UNESCO World Heritage Centre",
+		"source_url": "https://whc.unesco.org/en/list/274/"
+	},
+	{
+		"category": "Place",
+		"title": "The Great Barrier Reef",
+		"subtitle": "The world's largest coral reef ecosystem",
+		"content": "The Great Barrier Reef is a vast coral reef ecosystem off the northeastern coast of Australia, made up of thousands of reefs and hundreds of islands.",
+		"description": "It supports diverse marine life and is recognized as a UNESCO World Heritage site.",
+		"source_name": "Great Barrier Reef Marine Park Authority",
+		"source_url": "https://www2.gbrmpa.gov.au/about/great-barrier-reef"
+	}
+]
