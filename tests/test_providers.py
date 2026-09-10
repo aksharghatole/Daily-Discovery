@@ -172,3 +172,29 @@ def test_http_client_retries_transient_failures():
         client.get_json("https://provider.test")
 
     assert session.calls == 3
+
+
+def test_http_client_caches_successful_responses():
+    class Response:
+        status_code = 200
+
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"value": 1}
+
+    class Session:
+        def __init__(self):
+            self.calls = 0
+
+        def get(self, url, **kwargs):
+            self.calls += 1
+            return Response()
+
+    session = Session()
+    client = JsonHttpClient(session=session, cache_ttl=60)
+
+    assert client.get_json("https://provider.test", params={"q": "sky"}) == {"value": 1}
+    assert client.get_json("https://provider.test", params={"q": "sky"}) == {"value": 1}
+    assert session.calls == 1

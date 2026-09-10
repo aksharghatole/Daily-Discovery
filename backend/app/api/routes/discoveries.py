@@ -7,7 +7,8 @@ from backend.app.api.dependencies.auth import get_current_user_optional, resolve
 from backend.app.dependencies.database import get_db
 from backend.app.schemas.discovery import DiscoveryListResponse, DiscoveryResponse
 from database.repository import Repository
-from services.discovery_service import DailyDiscoveryService, GenerationError, load_local_catalog
+from services.daily_generation_service import DailyGenerationService, GenerationError, application_date
+from services.discovery_service import load_local_catalog
 from services.preferences_service import PreferencesService
 
 router = APIRouter()
@@ -39,15 +40,43 @@ def get_today_discoveries(
     db: Session = Depends(get_db),
     user=Depends(get_current_user_optional),
 ) -> list[DiscoveryResponse]:
-    today = date.today()
+    today = application_date()
     user = resolve_user(db, user)
     candidates = load_local_catalog()
     candidates = PreferencesService().filter_candidates(user, today, candidates)
     try:
-        discoveries = DailyDiscoveryService(db, candidates=candidates).generate(today)
+        result = DailyGenerationService(db, candidates=candidates).generate_daily_discovery(
+            today,
+            categories=PreferencesService().categories_for_date(user, today),
+        )
+        discoveries = result.discoveries
     except GenerationError as exc:
         raise HTTPException(status_code=500, detail=str(exc)) from exc
     return [_to_response(item) for item in discoveries]
+
+
+@router.get("/generation/status")
+def get_generation_status(
+    date_: str | None = Query(default=None, alias="date"),
+    db: Session = Depends(get_db),
+) -> dict[str, object]:
+    discovery_date = application_date()
+    if date_:
+        try:
+            discovery_date = date.fromisoformat(date_)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.") from exc
+    run = DailyGenerationService(db).get_status(discovery_date)
+    if run is None:
+        return {"date": discovery_date, "status": "PENDING", "error_count": 0}
+    return {
+        "date": run.date,
+        "status": run.status,
+        "started_at": run.started_at,
+        "completed_at": run.completed_at,
+        "error_count": run.error_count,
+        "last_error": run.last_error,
+    }
 
 
 @router.get(

@@ -7,7 +7,8 @@ from backend.app.api.dependencies.auth import get_current_user_optional, resolve
 from backend.app.dependencies.database import get_db
 from backend.app.schemas.quiz import QuizQuestionResponse, QuizSubmissionRequest, QuizSubmissionResponse
 from database.repository import Repository
-from services.discovery_service import DailyDiscoveryService, load_local_catalog
+from services.daily_generation_service import DailyGenerationService, application_date
+from services.discovery_service import load_local_catalog
 from services.preferences_service import PreferencesService
 from services.progress_service import ProgressService
 from services.quiz_service import QuizService
@@ -25,10 +26,13 @@ def get_today_quiz(
     db: Session = Depends(get_db),
     user=Depends(get_current_user_optional),
 ) -> list[QuizQuestionResponse]:
-    today = date.today()
+    today = application_date()
     user = resolve_user(db, user)
     candidates = PreferencesService().filter_candidates(user, today, load_local_catalog())
-    discoveries = DailyDiscoveryService(db, candidates=candidates).generate(today)
+    discoveries = DailyGenerationService(db, candidates=candidates).generate_daily_discovery(
+        today,
+        categories=PreferencesService().categories_for_date(user, today),
+    ).discoveries
     questions = QuizService(db).get_or_generate(today, discoveries)
     return [
         QuizQuestionResponse(
@@ -60,7 +64,7 @@ def submit_quiz(
         raise HTTPException(status_code=400, detail="Invalid date format. Use YYYY-MM-DD.") from exc
 
     user = resolve_user(db, user)
-    discoveries = DailyDiscoveryService(db, candidates=load_local_catalog()).generate(quiz_date)
+    discoveries = DailyGenerationService(db, candidates=load_local_catalog()).generate_daily_discovery(quiz_date).discoveries
     questions = QuizService(db).get_or_generate(quiz_date, discoveries)
     if not questions:
         raise HTTPException(status_code=404, detail="No quiz exists for the requested date.")

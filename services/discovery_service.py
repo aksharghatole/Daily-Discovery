@@ -31,6 +31,8 @@ class DiscoveryCandidate:
     subtitle: str | None = None
     description: str | None = None
     image_url: str | None = None
+    source_identifier: str | None = None
+    source_date: date | None = None
 
     @classmethod
     def from_dict(cls, value: dict[str, object]) -> "DiscoveryCandidate":
@@ -47,6 +49,7 @@ class DiscoveryCandidate:
             subtitle=_optional_text(value.get("subtitle")),
             description=_optional_text(value.get("description")),
             image_url=_optional_text(value.get("image_url")),
+            source_identifier=_optional_text(value.get("source_identifier")),
         )
 
 
@@ -60,7 +63,8 @@ def _optional_text(value: object) -> str | None:
 def normalize_title(title: str) -> str:
     """Normalize punctuation and whitespace for stable duplicate detection."""
 
-    return re.sub(r"[^a-z0-9 ]", "", title.casefold()).strip()
+    normalized = re.sub(r"[^a-z0-9 ]", "", title.casefold())
+    return re.sub(r"\s+", " ", normalized).strip()
 
 
 def load_local_catalog(path: Path = CATALOG_PATH) -> list[DiscoveryCandidate]:
@@ -97,7 +101,10 @@ class DailyDiscoveryService:
                 )
                 category = self.repository.get_or_create_category(category_name)
                 source = self.repository.create_source(
-                    candidate.source_name, candidate.source_url
+                    candidate.source_name,
+                    candidate.source_url,
+                    source_date=candidate.source_date,
+                    source_identifier=candidate.source_identifier,
                 )
                 discovery = self.repository.create_discovery(
                     discovery_date,

@@ -14,6 +14,7 @@ from database.models import (
     Quiz,
     QuizAttempt,
     Source,
+    GenerationRun,
     User,
     UserProgress,
     UserDiscovery,
@@ -154,8 +155,14 @@ class Repository:
         name: str,
         url: str,
         source_date: date | None = None,
+        source_identifier: str | None = None,
     ) -> Source:
-        source = Source(name=name, url=url, source_date=source_date)
+        source = Source(
+            name=name,
+            url=url,
+            source_identifier=source_identifier,
+            source_date=source_date,
+        )
         self.session.add(source)
         self.session.flush()
         return source

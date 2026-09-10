@@ -67,6 +67,7 @@ def initialize_database() -> None:
     Base.metadata.create_all(bind=engine)
     if engine.dialect.name == "sqlite":
         _upgrade_sqlite_preferences()
+        _upgrade_sqlite_sources()
 
 
 def _upgrade_sqlite_preferences() -> None:
@@ -140,6 +141,17 @@ def _upgrade_sqlite_preferences() -> None:
         connection.execute(
             text("UPDATE users SET daily_theme = COALESCE(daily_theme, 'Completely Random') WHERE daily_theme IS NULL OR daily_theme = ''")
         )
+
+
+def _upgrade_sqlite_sources() -> None:
+    """Add Phase 4 source identifiers to an existing local database."""
+
+    columns = {column["name"] for column in inspect(engine).get_columns("sources")}
+    if "source_identifier" not in columns:
+        with engine.begin() as connection:
+            connection.execute(
+                text("ALTER TABLE sources ADD COLUMN source_identifier VARCHAR(255) NULL")
+            )
 
 
 initialize_database()

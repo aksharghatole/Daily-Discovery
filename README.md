@@ -95,6 +95,25 @@ The API docs are available at:
 
 See [docs/api.md](docs/api.md) for the endpoint catalog.
 
+### Automatic daily generation (Phase 4)
+
+Run the scheduler as a separate process. It generates at `00:05` in
+`APP_TIMEZONE` and uses the database-backed generation lock:
+
+```bash
+python -m scheduler
+```
+
+Generate or recover a specific date manually:
+
+```bash
+python -m backend.scripts.generate_daily --date 2026-09-10
+```
+
+Omit `--date` to generate the current date in the configured application
+timezone. Re-running a date is idempotent; partial runs retry only missing
+categories.
+
 The Phase 5 dashboard generates or loads today's collection, shows the date,
 category/source metrics, and renders compact two-column discovery cards with
 expandable descriptions and clickable source links.

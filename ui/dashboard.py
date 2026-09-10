@@ -12,7 +12,8 @@ from database.models import Discovery, User
 from database.repository import Repository
 from providers.base import ProviderUnavailable
 from providers.wikipedia_provider import WikipediaProvider
-from services.discovery_service import DailyDiscoveryService, GenerationError, load_local_catalog
+from services.daily_generation_service import DailyGenerationService, GenerationError
+from services.discovery_service import load_local_catalog
 from services.progress_service import ProgressService
 from services.preferences_service import DEFAULT_CATEGORIES, THEME_CATEGORIES, PreferencesService
 from services.quiz_service import QuizService
@@ -32,7 +33,15 @@ def get_daily_discoveries(
     candidates = load_local_catalog()
     if user is not None:
         candidates = PreferencesService().filter_candidates(user, discovery_date, candidates)
-    discoveries = DailyDiscoveryService(session, candidates=candidates).generate(discovery_date)
+    categories = (
+        PreferencesService().categories_for_date(user, discovery_date)
+        if user is not None
+        else None
+    )
+    discoveries = DailyGenerationService(session, candidates=candidates).generate_daily_discovery(
+        discovery_date,
+        categories=categories,
+    ).discoveries
     # Materialize relationship-backed fields while the owning session is open.
     return list(discoveries)
 
