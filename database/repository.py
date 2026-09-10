@@ -1,9 +1,11 @@
 """Persistence operations used by services and future UI layers."""
 
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 
 from sqlalchemy import or_, select
 from sqlalchemy.orm import Session, joinedload
+
+from argon2 import PasswordHasher
 
 from database.models import (
     Category,
@@ -16,6 +18,7 @@ from database.models import (
     UserProgress,
     UserDiscovery,
     SpacedReview,
+    UserSession,
 )
 
 
@@ -24,26 +27,103 @@ class Repository:
 
     def __init__(self, session: Session):
         self.session = session
+        self.password_hasher = PasswordHasher()
 
     def create_user(
         self,
         timezone_name: str = "UTC",
         preferred_categories: list[str] | None = None,
+        *,
+        email: str | None = None,
+        password_hash: str | None = None,
+        display_name: str | None = None,
+        is_admin: bool = False,
     ) -> User:
         user = User(
+            email=(email or "").strip().lower(),
+            password_hash=password_hash,
+            display_name=display_name,
             timezone=timezone_name,
             preferred_categories=preferred_categories or [],
+            enabled_categories=preferred_categories or [],
+            is_admin=is_admin,
         )
         self.session.add(user)
         self.session.flush()
         return user
 
+    def get_user_by_email(self, email: str) -> User | None:
+        normalized = (email or "").strip().lower()
+        return self.session.scalar(select(User).where(User.email == normalized))
+
+    def get_user_by_id(self, user_id: int) -> User | None:
+        return self.session.get(User, user_id)
+
+    def create_session_for_user(
+        self,
+        user: User,
+        *,
+        refresh_token: str,
+        device_name: str | None = None,
+        platform: str | None = None,
+        expires_at: datetime | None = None,
+    ) -> UserSession:
+        token_hash = self.password_hasher.hash(refresh_token)
+        session = UserSession(
+            user=user,
+            refresh_token_hash=token_hash,
+            device_name=device_name,
+            platform=platform,
+            expires_at=expires_at or (datetime.now(timezone.utc) + timedelta(days=30)),
+        )
+        self.session.add(session)
+        self.session.flush()
+        return session
+
+    def verify_password(self, user: User, password: str) -> bool:
+        if not user.password_hash:
+            return False
+        try:
+            return self.password_hasher.verify(user.password_hash, password)
+        except Exception:
+            return False
+
+    def update_password(self, user: User, password: str) -> None:
+        user.password_hash = self.password_hasher.hash(password)
+        user.updated_at = datetime.now(timezone.utc)
+
+    def revoke_session(self, user: User, refresh_token: str | None = None) -> None:
+        if refresh_token is None:
+            for session in self.session.scalars(
+                select(UserSession).where(
+                    UserSession.user_id == user.id,
+                    UserSession.revoked_at.is_(None),
+                )
+            ).all():
+                session.revoked_at = datetime.now(timezone.utc)
+            return
+        for session in self.session.scalars(
+            select(UserSession).where(UserSession.user_id == user.id)
+        ).all():
+            try:
+                if self.password_hasher.verify(session.refresh_token_hash, refresh_token):
+                    session.revoked_at = datetime.now(timezone.utc)
+                    return
+            except Exception:
+                continue
+
     def get_or_create_local_user(self) -> User:
         """Return the one local profile used before authentication exists."""
 
-        user = self.session.scalar(select(User).order_by(User.id).limit(1))
+        user = self.session.scalar(select(User).where(User.email == "local@daily-discovery.local").limit(1))
         if user is None:
-            user = self.create_user()
+            user = self.session.scalar(select(User).order_by(User.id).limit(1))
+        if user is None:
+            user = self.create_user(
+                email="local@daily-discovery.local",
+                display_name="Local User",
+                timezone_name="UTC",
+            )
         return user
 
     def get_or_create_progress(self, user: User) -> UserProgress:
@@ -204,6 +284,8 @@ class Repository:
         if interaction is None:
             interaction = self.mark_viewed(user, discovery)
         interaction.favorite = favorite
+        if favorite:
+            self.add_learning_history_once(user, discovery, "viewed", discovery.date)
         self.session.flush()
         return interaction
 

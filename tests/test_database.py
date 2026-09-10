@@ -3,6 +3,7 @@ from datetime import date
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
+from config.settings import get_settings
 from database.db import Base, create_engine_from_settings, initialize_database
 from database.models import Discovery, User
 from database.repository import Repository
@@ -137,3 +138,16 @@ def test_repository_search_matches_category_and_content(monkeypatch):
 
         assert len(repository.list_discoveries(search="ocean")) == 1
         assert len(repository.list_discoveries(search="geography")) == 1
+
+
+def test_database_url_supports_sqlite_and_postgres(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "sqlite:///./data/test.db")
+    settings = get_settings()
+    assert settings.database_url.startswith("sqlite")
+
+    monkeypatch.setenv(
+        "DATABASE_URL",
+        "postgresql+psycopg://user:pass@localhost:5432/daily_discovery",
+    )
+    settings = get_settings()
+    assert settings.database_url.startswith("postgresql+psycopg")

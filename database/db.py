@@ -13,8 +13,10 @@ from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from config.settings import get_settings
 
 
-class Base(DeclarativeBase):
-    """Base class for Phase 2 ORM models."""
+if "Base" not in globals():
+
+    class Base(DeclarativeBase):
+        """Base class for Phase 2 ORM models."""
 
 
 def _sqlite_connect_args(database_url: str) -> dict[str, bool]:
@@ -48,20 +50,19 @@ engine = create_engine_from_settings()
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False)
 
 
-def get_db() -> Generator[Session, None, None]:
-    """Yield a database session and always close it."""
-
-    session = SessionLocal()
-    try:
-        yield session
-    finally:
-        session.close()
+def create_session_local() -> sessionmaker:
+    """Create a fresh SQLAlchemy session factory using the active settings."""
+    return sessionmaker(
+        bind=create_engine_from_settings(),
+        autoflush=False,
+        autocommit=False,
+    )
 
 
 def initialize_database() -> None:
     """Create registered tables once models are added in Phase 2."""
 
-    from database import models  # noqa: F401
+    import database.models  # noqa: F401
 
     Base.metadata.create_all(bind=engine)
     if engine.dialect.name == "sqlite":
@@ -69,10 +70,36 @@ def initialize_database() -> None:
 
 
 def _upgrade_sqlite_preferences() -> None:
-    """Add small, backwards-compatible columns to an existing local database."""
+    """Add backwards-compatible columns to an existing local database."""
 
     columns = {column["name"] for column in inspect(engine).get_columns("users")}
     statements = []
+    if "email" not in columns:
+        statements.append(
+            "ALTER TABLE users ADD COLUMN email VARCHAR(255) NULL"
+        )
+    if "password_hash" not in columns:
+        statements.append(
+            "ALTER TABLE users ADD COLUMN password_hash VARCHAR(255) NULL"
+        )
+    if "display_name" not in columns:
+        statements.append(
+            "ALTER TABLE users ADD COLUMN display_name VARCHAR(120) NULL"
+        )
+    if "updated_at" not in columns:
+        statements.append("ALTER TABLE users ADD COLUMN updated_at DATETIME")
+    if "last_login_at" not in columns:
+        statements.append(
+            "ALTER TABLE users ADD COLUMN last_login_at DATETIME NULL"
+        )
+    if "is_active" not in columns:
+        statements.append(
+            "ALTER TABLE users ADD COLUMN is_active BOOLEAN NOT NULL DEFAULT 1"
+        )
+    if "is_admin" not in columns:
+        statements.append(
+            "ALTER TABLE users ADD COLUMN is_admin BOOLEAN NOT NULL DEFAULT 0"
+        )
     if "enabled_categories" not in columns:
         statements.append(
             "ALTER TABLE users ADD COLUMN enabled_categories JSON NOT NULL DEFAULT '[]'"
@@ -85,3 +112,45 @@ def _upgrade_sqlite_preferences() -> None:
         with engine.begin() as connection:
             for statement in statements:
                 connection.execute(text(statement))
+
+    # Normalize legacy users to a safe local account without overwriting existing values.
+    with engine.begin() as connection:
+        stored_email = connection.execute(
+            text("SELECT COUNT(*) FROM users WHERE email IS NOT NULL AND email != ''")
+        ).scalar_one()
+        if stored_email == 0:
+            connection.execute(
+                text("UPDATE users SET email = 'local@daily-discovery.local', display_name = 'Local User', is_active = 1 WHERE email IS NULL OR email = ''")
+            )
+        connection.execute(
+            text("UPDATE users SET updated_at = COALESCE(updated_at, CURRENT_TIMESTAMP)")
+        )
+        connection.execute(
+            text("UPDATE users SET created_at = COALESCE(created_at, CURRENT_TIMESTAMP) WHERE created_at IS NULL")
+        )
+        connection.execute(
+            text("UPDATE users SET timezone = COALESCE(timezone, 'UTC') WHERE timezone IS NULL")
+        )
+        connection.execute(
+            text("UPDATE users SET preferred_categories = COALESCE(preferred_categories, '[]') WHERE preferred_categories IS NULL")
+        )
+        connection.execute(
+            text("UPDATE users SET enabled_categories = COALESCE(enabled_categories, '[]') WHERE enabled_categories IS NULL")
+        )
+        connection.execute(
+            text("UPDATE users SET daily_theme = COALESCE(daily_theme, 'Completely Random') WHERE daily_theme IS NULL OR daily_theme = ''")
+        )
+
+
+initialize_database()
+
+
+def get_db() -> Generator[Session, None, None]:
+    """Yield a database session and always close it."""
+
+    session_factory = create_session_local()
+    session = session_factory()
+    try:
+        yield session
+    finally:
+        session.close()

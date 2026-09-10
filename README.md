@@ -76,9 +76,24 @@ cp .env.example .env
 
 ## Run
 
+### Streamlit (existing app)
+
 ```bash
 streamlit run app.py
 ```
+
+### FastAPI backend (Phase 1)
+
+```bash
+uvicorn backend.app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+The API docs are available at:
+
+- http://localhost:8000/docs
+- http://localhost:8000/redoc
+
+See [docs/api.md](docs/api.md) for the endpoint catalog.
 
 The Phase 5 dashboard generates or loads today's collection, shows the date,
 category/source metrics, and renders compact two-column discovery cards with
@@ -143,9 +158,46 @@ pytest -q
 
 Copy `.env.example` to `.env` and adjust values as needed:
 
+- `DATABASE_URL`: set to SQLite for local development or PostgreSQL for production-like usage
 - `NASA_API_KEY`: NASA API key, defaulting to `DEMO_KEY` locally.
+- `POSTGRES_*`: local PostgreSQL development variables when using Docker Compose
 
 Secrets and local database files are excluded by `.gitignore`.
+
+Authentication and account ownership details are documented in
+[docs/authentication.md](docs/authentication.md),
+[docs/data-ownership.md](docs/data-ownership.md), and
+[docs/auth-migration.md](docs/auth-migration.md).
+
+## Database setup
+
+### SQLite (default local development)
+
+```env
+DATABASE_URL=sqlite:///./data/daily_discovery.db
+```
+
+### PostgreSQL (production-like setup)
+
+```env
+DATABASE_URL=postgresql+psycopg://daily_discovery:daily_discovery@localhost:5432/daily_discovery
+```
+
+### Alembic migrations
+
+```bash
+alembic upgrade head
+```
+
+For the initial schema, the repo includes the migration in [alembic/versions/20260910_initial_schema.py](alembic/versions/20260910_initial_schema.py).
+
+## Backup guidance
+
+Before testing a migration locally, back up the SQLite database file:
+
+```bash
+cp data/daily_discovery.db data/daily_discovery.db.bak
+```
 
 ## Next phase
 
