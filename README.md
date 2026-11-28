@@ -216,6 +216,6 @@ Before testing a migration locally, back up the SQLite database file:
 cp data/daily_discovery.db data/daily_discovery.db.bak
 ```
 
-## Next phase
+## Daily generation
 
-Phase 15 will add automatic scheduling and idempotent daily generation jobs.
+Automatic scheduling and idempotent daily generation are implemented. See [Automatic daily generation](#automatic-daily-generation-phase-4) for the scheduler command and [Run](#run) for manual generation.
