@@ -2,9 +2,7 @@
 
 Discover something new every day.
 
-Daily Discovery is being built as a modular personal knowledge platform. The
-project currently contains **Phase 14: themes and preferences**.
-The engine, provider layer, and Streamlit dashboard can operate with
+Daily Discovery is being built as a modular personal knowledge platform. The engine, provider layer, and Streamlit dashboard can operate with
 source-backed content and a local fallback.
 
 ## Project structure
